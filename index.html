@@ -39,7 +39,8 @@ h2{font-size:1.05rem;margin:0 0 12px}
 .sum{display:flex;gap:8px;margin-bottom:14px}
 .sum>div{flex:1;background:var(--bg);border-radius:10px;padding:10px 6px;text-align:center}
 .sum small{display:block;color:var(--mut);font-size:.72rem;margin-bottom:3px}
-.sum b{font-size:.95rem}
+.sum b{font-size:.82rem;word-break:break-word}
+.sum>div{min-width:0}
 .sum .ac{color:var(--ac)}
 .chk{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:1rem;color:var(--tx)}
 .chk input{width:22px;height:22px;flex:none}
@@ -56,12 +57,16 @@ textarea[hidden]{display:none}
 .chips button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
 select{width:100%;font-size:1.1rem;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
 .bar{height:10px;border-radius:5px;background:var(--ac);min-width:2px}
+.row>div{min-width:0}
+input{min-width:0;max-width:100%}
+input[type=time],input[type=date]{font-size:.95rem;padding:11px 8px}
+body{overflow-x:hidden}
 </style>
 </head>
 <body>
 <div class="top"><h1 id="ttl">⏱️ Mis Horas de Trabajo</h1>
 <div><button class="mb" id="mb" aria-label="Menú">⋮</button><div class="mn" id="mn" hidden>
-<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
+<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v6">🐷 Ahorros</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
 <div id="v1">
 
 <div class="card">
@@ -110,6 +115,7 @@ select{width:100%;font-size:1.1rem;padding:11px;border-radius:10px;border:1px so
   <div class="sum">
     <div><small>Pagado (total)</small><b id="xp"></b></div>
     <div><small>Gastado (total)</small><b id="xg"></b></div>
+    <div><small>Ahorrado</small><b id="xs"></b></div>
     <div><small id="xl">Te queda</small><b id="xd" class="ac"></b></div>
   </div>
   <div class="row">
@@ -126,6 +132,22 @@ select{width:100%;font-size:1.1rem;padding:11px;border-radius:10px;border:1px so
   <div id="el"></div>
   <div class="tot"><span>Gastado en el mes</span><em id="emt"></em></div>
 </div>
+</div>
+
+<div id="v6" hidden>
+<div class="card">
+  <div class="sum">
+    <div><small>Pagado</small><b id="ys"></b></div>
+    <div><small>Gastado</small><b id="yg"></b></div>
+    <div><small>Ahorrado</small><b id="yv"></b></div>
+    <div><small id="yl">Te queda</small><b id="yd" class="ac"></b></div>
+  </div>
+  <div class="row"><div><label for="af">Fecha</label><input type="date" id="af"></div><div><label for="am">Monto ahorrado ($)</label><input type="number" id="am" inputmode="numeric" min="0"></div></div>
+  <div style="margin-top:10px"><label for="an">Nota (opcional)</label><input type="text" id="an" placeholder="Ej: alcancía"></div>
+  <button class="main" id="ag">Guardar ahorro</button>
+  <div class="msg" id="amsg"></div>
+</div>
+<div class="card"><h2>🐷 Mis ahorros</h2><div id="al"></div><div class="tot"><span>Total ahorrado</span><em id="at"></em></div></div>
 </div>
 
 <div id="v4" hidden>
@@ -166,7 +188,7 @@ select{width:100%;font-size:1.1rem;padding:11px;border-radius:10px;border:1px so
 
 <script>
 const KEY="horas_trabajo_v1";
-let S={rate:7000,days:{},pays:[],exp:[],wp:{}};
+let S={rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}};
 try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 const $=id=>document.getElementById(id);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -257,12 +279,12 @@ $("gd").onclick=async()=>{
     $("m").textContent="✓ Día borrado";render();
   }
 };
-const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad",v4:"📊 Resumen y metas",v5:"⚙️ Ajustes"};
+const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad",v6:"🐷 Mis Ahorros",v4:"📊 Resumen y metas",v5:"⚙️ Ajustes"};
 function show(v){
   for(const k in VT)$(k).hidden=k!==v;
   $("ttl").textContent=VT[v];$("mn").hidden=true;
   document.querySelectorAll("#mn button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  window.scrollTo(0,0);if(v==="v4")renderSum();if(v==="v5")loadSet();
+  window.scrollTo(0,0);if(v==="v4")renderSum();if(v==="v5")loadSet();if(v==="v6")renderSav();if(v==="v2")renderExp();
 }
 $("mb").onclick=e=>{e.stopPropagation();$("mn").hidden=!$("mn").hidden};
 document.querySelectorAll("#mn button").forEach(b=>b.onclick=()=>show(b.dataset.v));
@@ -278,7 +300,7 @@ function drawChips(){
 }
 function renderExp(){
   let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(x=>sp+=x.m);
-  const queda=paid-sp;
+  const sv=S.sav.reduce((a,x)=>a+x.m,0),queda=paid-sp-sv;$("xs").textContent=money(sv);
   $("xp").textContent=money(paid);$("xg").textContent=money(sp);
   $("xd").textContent=sgn(queda);$("xl").textContent=queda>=0?"Te queda":"Te falta";
   const key=ew.getFullYear()+"-"+String(ew.getMonth()+1).padStart(2,"0");
@@ -334,8 +356,8 @@ function renderSum(){
   if(!en.length)c.textContent="Sin gastos este mes";
   en.forEach(([n,v])=>c.append(bar(n+" · "+money(v),v,cm)));
   let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(e=>sp+=e.m);
-  const sav=Math.max(0,paid-sp),m=$("gm");m.innerHTML="";
-  if(S.goal&&S.goal.a>0){const pc=Math.min(100,sav/S.goal.a*100);m.append(bar(S.goal.n+": "+money(sav)+" de "+money(S.goal.a)+" ("+Math.round(pc)+"%)",pc,100));m.append(Object.assign(document.createElement("small"),{textContent:"Ahorro = lo pagado menos lo gastado.",style:"color:var(--mut)"}))}
+  const sav=S.sav.reduce((a,x)=>a+x.m,0),m=$("gm");m.innerHTML="";
+  if(S.goal&&S.goal.a>0){const pc=Math.min(100,sav/S.goal.a*100);m.append(bar(S.goal.n+": "+money(sav)+" de "+money(S.goal.a)+" ("+Math.round(pc)+"%)",pc,100));m.append(Object.assign(document.createElement("small"),{textContent:"Sale de tu sección Ahorros.",style:"color:var(--mut)"}))}
   else m.textContent="Aún no tienes una meta. Crea una abajo.";
   $("gn").value=S.goal?S.goal.n:"";$("ga").value=S.goal?S.goal.a:"";
 }
@@ -358,6 +380,30 @@ function lock(){
   i.oninput=()=>{if(i.value.length===4){if(hsh(i.value)===S.pin)o.remove();else{i.value="";i.placeholder="✗"}}};
   o.append(i);document.body.append(o);i.focus();
 }
+function renderSav(){
+  let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(x=>sp+=x.m);
+  const sv=S.sav.reduce((a,x)=>a+x.m,0),q=paid-sp-sv;
+  $("ys").textContent=money(paid);$("yg").textContent=money(sp);$("yv").textContent=money(sv);
+  $("yd").textContent=sgn(q);$("yl").textContent=q>=0?"Te queda":"Te falta";$("at").textContent=money(sv);
+  const l=$("al");l.innerHTML="";
+  if(!S.sav.length){const z=document.createElement("div");z.className="zero";z.style.padding="10px 0";z.textContent="Aún no has anotado ahorros";l.append(z)}
+  S.sav.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).forEach(x=>{
+    const d=parse(x.d),row=document.createElement("div");row.className="day";
+    const lf=document.createElement("div"),b=document.createElement("b");b.textContent=money(x.m);
+    const sm=document.createElement("small");sm.textContent=d.getDate()+" "+mn[d.getMonth()]+" "+d.getFullYear()+(x.n?" · "+x.n:"");
+    lf.append(b,sm);
+    const xb=document.createElement("button");xb.className="x";xb.textContent="✕";xb.setAttribute("aria-label","Borrar ahorro");
+    xb.onclick=async()=>{if(await askC("¿Borrar este ahorro de "+money(x.m)+"?")){S.sav=S.sav.filter(q=>q.id!==x.id);save();renderSav()}};
+    row.append(lf,xb);l.append(row);
+  });
+}
+$("af").value=iso(new Date());
+$("ag").onclick=()=>{
+  const f=$("af").value,m=parseFloat($("am").value);
+  if(!f||isNaN(m)||m<=0){$("amsg").textContent="Revisa la fecha y el monto.";return}
+  S.sav.push({id:Date.now(),d:f,m:m,n:$("an").value.trim()});save();
+  $("amsg").textContent="✓ Ahorro guardado: "+money(m);$("am").value="";$("an").value="";renderSav();
+};
 drawChips();applyTheme();lock();show("v1");
 let DL=null;
 (async()=>{
@@ -390,7 +436,7 @@ $("bfile").onchange=async()=>{
     const n=JSON.parse(await f.text()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
     $("bmsg").textContent="✓ Copia restaurada";
   }catch(err){$("bmsg").textContent="Ese archivo no parece una copia de esta página."}
   $("bfile").value="";
@@ -407,7 +453,7 @@ $("rs").onclick=async()=>{
     const n=JSON.parse(t.value.trim()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],wp:{}},n);save();$("v").value=S.rate;render();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}},n);save();$("v").value=S.rate;render();
     $("bmsg").textContent="✓ Copia restaurada";t.value="";t.hidden=true;
   }catch(err){$("bmsg").textContent="Pega primero el texto completo de tu copia y toca Restaurar.";t.hidden=false}
 };
