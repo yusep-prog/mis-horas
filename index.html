@@ -54,12 +54,14 @@ textarea[hidden]{display:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .chips button{background:var(--bg);color:var(--tx);border:1px solid var(--bd);padding:8px 12px;border-radius:20px;font-size:.9rem}
 .chips button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+select{width:100%;font-size:1.1rem;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.bar{height:10px;border-radius:5px;background:var(--ac);min-width:2px}
 </style>
 </head>
 <body>
 <div class="top"><h1 id="ttl">⏱️ Mis Horas de Trabajo</h1>
 <div><button class="mb" id="mb" aria-label="Menú">⋮</button><div class="mn" id="mn" hidden>
-<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v3">🛟 Copia de seguridad</button></div></div></div>
+<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
 <div id="v1">
 
 <div class="card">
@@ -68,6 +70,9 @@ textarea[hidden]{display:none}
     <div><label for="h">Horas</label><input type="number" id="h" inputmode="decimal" step="0.25" min="0" placeholder="6"></div>
   </div>
   <label class="chk" for="rest"><input type="checkbox" id="rest"> 😴 Día de descanso</label>
+  <div class="row" style="margin-top:10px"><div><label for="ti">Entrada (opcional)</label><input type="time" id="ti"></div><div><label for="to">Salida (opcional)</label><input type="time" id="to"></div></div>
+  <div style="margin-top:10px"><label for="nt">Nota del día (opcional)</label><input type="text" id="nt" placeholder="Ej: turno extra"></div>
+  <label class="chk" for="fest"><input type="checkbox" id="fest"> ⭐ Festivo / hora extra</label>
   <div style="margin-top:10px"><label for="v">Valor por hora ($)</label><input type="number" id="v" inputmode="numeric" min="0"></div>
   <button class="main" id="g">Guardar horas</button>
   <button class="main" id="gd" hidden style="background:none;color:var(--dg);border:1px solid var(--dg)">🗑️ Borrar este día</button>
@@ -79,6 +84,8 @@ textarea[hidden]{display:none}
   <div style="font-size:.78rem;color:var(--mut);margin:-2px 0 6px;text-align:center">Toca un día para registrarlo o editarlo</div>
   <div id="l"></div>
   <div class="tot"><span id="th"></span><em id="tm"></em></div>
+  <div class="msg" id="mres" style="color:var(--tx);margin-top:10px"></div>
+  <div class="row" style="margin-top:8px"><button class="main" id="wp" style="flex:1;margin:0;background:var(--bg);color:var(--tx);border:1px solid var(--bd)"></button><button class="main" id="wa" style="flex:1;margin:0">📲 WhatsApp</button></div>
 </div>
 
 <div class="card">
@@ -121,6 +128,23 @@ textarea[hidden]{display:none}
 </div>
 </div>
 
+<div id="v4" hidden>
+<div class="card"><h2>📊 Últimos 6 meses</h2><div style="font-size:.78rem;color:var(--mut)">Verde: ganado · Rojo: gastado</div><div id="gr"></div></div>
+<div class="card"><h2>🧾 Gastos por categoría (este mes)</h2><div id="gc"></div></div>
+<div class="card"><h2>🎯 Meta de ahorro</h2><div id="gm" style="margin-bottom:12px"></div>
+<div class="row"><div><label for="gn">Meta</label><input id="gn" type="text" placeholder="Celular nuevo"></div><div><label for="ga">Valor ($)</label><input id="ga" type="number" inputmode="numeric"></div></div>
+<button class="main" id="gs2">Guardar meta</button></div>
+</div>
+<div id="v5" hidden>
+<div class="card"><h2>⚙️ Ajustes</h2>
+<label for="r2">Valor por hora festivo / extra ($)</label><input type="number" id="r2" inputmode="numeric">
+<div style="margin-top:12px"><label for="tm2">Tema</label><select id="tm2"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Oscuro</option></select></div>
+<div style="margin-top:12px"><label for="pn">Clave nueva de 4 números (para abrir la app)</label><input type="password" id="pn" inputmode="numeric" maxlength="4"></div>
+<button class="main" id="sv">Guardar ajustes</button>
+<button class="main" id="rp" style="background:none;color:var(--dg);border:1px solid var(--dg)">Quitar clave</button>
+<div class="msg" id="smsg"></div></div>
+</div>
+
 <div id="v3" hidden>
 
 <div class="card">
@@ -142,7 +166,7 @@ textarea[hidden]{display:none}
 
 <script>
 const KEY="horas_trabajo_v1";
-let S={rate:7000,days:{},pays:[],exp:[]};
+let S={rate:7000,days:{},pays:[],exp:[],wp:{}};
 try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 const $=id=>document.getElementById(id);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -165,7 +189,7 @@ function render(){
     const row=document.createElement("div");row.className="day";
     const left=document.createElement("div");
     const b=document.createElement("b");b.textContent=dn[i];
-    const sm=document.createElement("small");sm.textContent=d.getDate()+" "+mn[d.getMonth()];
+    const sm=document.createElement("small");sm.textContent=d.getDate()+" "+mn[d.getMonth()]+(e&&e.fest?" ⭐":"")+(e&&e.n?" · "+e.n:"");
     left.style.cursor="pointer";left.style.flex="1";left.onclick=()=>pick(k,e);
     left.append(b,sm);
     const right=document.createElement("div");right.className="r";
@@ -183,15 +207,18 @@ function render(){
     row.append(left,right);l.append(row);
   }
   $("th").textContent="Total: "+fh(th)+" h";$("tm").textContent=money(tm);
+  {const mk=iso(wk).slice(0,7);let a=0,b=0;for(const x in S.days)if(x.startsWith(mk)){a+=S.days[x].h;b+=S.days[x].h*S.days[x].r}
+  $("mres").textContent="Mes de "+MES[wk.getMonth()]+": "+fh(a)+" h = "+money(b);
+  $("wp").textContent=S.wp[iso(wk)]?"✅ Semana pagada":"⏳ Marcar como pagada";}
   renderPay();
 }
 $("g").onclick=()=>{
   const f=$("f").value,h=parseFloat(String($("h").value).replace(",",".")),v=parseFloat($("v").value);
   const rest=$("rest").checked;
   if(!f||(!rest&&(isNaN(h)||h<0))||isNaN(v)){$("m").textContent="Revisa el día, las horas y el valor.";return}
-  S.rate=v;S.days[f]=rest?{h:0,r:v,rest:true}:{h:h,r:v};save();
-  $("m").textContent=rest?"✓ Descanso guardado":"✓ Guardado: "+fh(h)+" h = "+money(h*v);
-  $("h").value="";$("rest").checked=false;$("h").disabled=false;wk=monday(parse(f));render();
+  const fe=$("fest").checked,nt=$("nt").value.trim(),rr=fe?(S.rate2||10500):v;S.rate=v;S.days[f]=rest?{h:0,r:v,rest:true,n:nt}:{h:h,r:rr,fest:fe,n:nt};save();
+  $("m").textContent=rest?"✓ Descanso guardado":"✓ Guardado: "+fh(h)+" h = "+money(h*(fe?(S.rate2||10500):v));
+  $("h").value="";$("nt").value="";$("ti").value="";$("to").value="";$("fest").checked=false;$("rest").checked=false;$("h").disabled=false;wk=monday(parse(f));render();
 };
 $("a").onclick=()=>{wk.setDate(wk.getDate()-7);render()};
 $("s").onclick=()=>{wk.setDate(wk.getDate()+7);render()};
@@ -200,8 +227,8 @@ $("rest").onchange=()=>{$("h").disabled=$("rest").checked;if($("rest").checked)$
 function pick(k,e){
   const d=parse(k);
   $("f").value=k;syncDel();$("rest").checked=!!(e&&e.rest);$("h").disabled=$("rest").checked;
-  $("h").value=(e&&!e.rest)?e.h:"";
-  if(e)$("v").value=e.r;
+  $("h").value=(e&&!e.rest)?e.h:"";$("nt").value=(e&&e.n)||"";$("fest").checked=!!(e&&e.fest);$("ti").value="";$("to").value="";
+  if(e&&!e.fest)$("v").value=e.r;
   $("m").textContent=(e?"Editando ":"Registrando ")+dn[(d.getDay()+6)%7]+" "+d.getDate()+" de "+mn[d.getMonth()];
   window.scrollTo({top:0,behavior:"smooth"});
   if(!$("rest").checked)setTimeout(()=>$("h").focus(),350);
@@ -230,12 +257,12 @@ $("gd").onclick=async()=>{
     $("m").textContent="✓ Día borrado";render();
   }
 };
-const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad"};
+const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad",v4:"📊 Resumen y metas",v5:"⚙️ Ajustes"};
 function show(v){
   for(const k in VT)$(k).hidden=k!==v;
   $("ttl").textContent=VT[v];$("mn").hidden=true;
   document.querySelectorAll("#mn button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  window.scrollTo(0,0);
+  window.scrollTo(0,0);if(v==="v4")renderSum();if(v==="v5")loadSet();
 }
 $("mb").onclick=e=>{e.stopPropagation();$("mn").hidden=!$("mn").hidden};
 document.querySelectorAll("#mn button").forEach(b=>b.onclick=()=>show(b.dataset.v));
@@ -284,7 +311,54 @@ $("eg").onclick=()=>{
 };
 $("ea").onclick=()=>{ew.setMonth(ew.getMonth()-1);renderExp()};
 $("es").onclick=()=>{ew.setMonth(ew.getMonth()+1);renderExp()};
-drawChips();show("v1");
+function calcT(){const a=$("ti").value,b=$("to").value;if(!a||!b)return;const [m1,m2]=[a,b].map(t=>{const[x,y]=t.split(":").map(Number);return x*60+y});let d=m2-m1;if(d<=0)d+=1440;$("h").value=Math.round(d/60*100)/100}
+$("ti").onchange=calcT;$("to").onchange=calcT;
+$("wp").onclick=()=>{const k=iso(wk);S.wp[k]=!S.wp[k];save();render()};
+$("wa").onclick=()=>{
+  let t="⏱️ Semana "+$("t").textContent+"\n",th=0,tm=0;
+  for(let i=0;i<7;i++){const d=new Date(wk);d.setDate(d.getDate()+i);const e=S.days[iso(d)];
+    if(e){th+=e.h;tm+=e.h*e.r;t+=dn[i]+": "+(e.rest?"descanso":fh(e.h)+" h = "+money(e.h*e.r))+"\n"}}
+  t+="Total: "+fh(th)+" h = "+money(tm);
+  window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+};
+function bar(lb,v,mx,col){const r=document.createElement("div");r.style.margin="8px 0";const t=document.createElement("small");t.textContent=lb;t.style.color="var(--mut)";const b=document.createElement("div");b.className="bar";b.style.width=(v/mx*100)+"%";if(col)b.style.background=col;r.append(t,b);return r}
+function renderSum(){
+  const g=$("gr");g.innerHTML="";const now=new Date(),rows=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1),k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");let a=0,b=0;
+    for(const x in S.days)if(x.startsWith(k))a+=S.days[x].h*S.days[x].r;S.exp.forEach(e=>{if(e.d.startsWith(k))b+=e.m});rows.push([MES[d.getMonth()],a,b])}
+  const mx=Math.max(1,...rows.flatMap(r=>[r[1],r[2]]));
+  rows.forEach(([n,a,b])=>{const w=document.createElement("div");w.style.margin="10px 0";w.append(bar(n+" · ganado "+money(a),a,mx),bar("gastado "+money(b),b,mx,"var(--dg)"));g.append(w)});
+  const ck=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"),cs={};
+  S.exp.forEach(e=>{if(e.d.startsWith(ck))cs[e.c]=(cs[e.c]||0)+e.m});
+  const c=$("gc");c.innerHTML="";const en=Object.entries(cs).sort((a,b)=>b[1]-a[1]),cm=Math.max(1,...en.map(x=>x[1]));
+  if(!en.length)c.textContent="Sin gastos este mes";
+  en.forEach(([n,v])=>c.append(bar(n+" · "+money(v),v,cm)));
+  let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(e=>sp+=e.m);
+  const sav=Math.max(0,paid-sp),m=$("gm");m.innerHTML="";
+  if(S.goal&&S.goal.a>0){const pc=Math.min(100,sav/S.goal.a*100);m.append(bar(S.goal.n+": "+money(sav)+" de "+money(S.goal.a)+" ("+Math.round(pc)+"%)",pc,100));m.append(Object.assign(document.createElement("small"),{textContent:"Ahorro = lo pagado menos lo gastado.",style:"color:var(--mut)"}))}
+  else m.textContent="Aún no tienes una meta. Crea una abajo.";
+  $("gn").value=S.goal?S.goal.n:"";$("ga").value=S.goal?S.goal.a:"";
+}
+$("gs2").onclick=()=>{const a=parseFloat($("ga").value);S.goal=(isNaN(a)||a<=0)?null:{n:$("gn").value.trim()||"Mi meta",a:a};save();renderSum()};
+const hsh=s=>{let x=5381;for(const c of s)x=((x*33)^c.charCodeAt(0))>>>0;return String(x)};
+function applyTheme(){document.documentElement.dataset.theme=(S.theme&&S.theme!=="auto")?S.theme:""}
+function loadSet(){$("r2").value=S.rate2||10500;$("tm2").value=S.theme||"auto";$("pn").value="";$("smsg").textContent=S.pin?"🔒 La clave está activada":""}
+$("sv").onclick=()=>{
+  const r=parseFloat($("r2").value);if(!isNaN(r)&&r>0)S.rate2=r;
+  S.theme=$("tm2").value;const p=$("pn").value;
+  if(p){if(!/^\d{4}$/.test(p)){$("smsg").textContent="La clave debe tener 4 números.";return}S.pin=hsh(p)}
+  save();applyTheme();loadSet();$("smsg").textContent="✓ Ajustes guardados"+(S.pin?" · 🔒 clave activada":"");
+};
+$("rp").onclick=()=>{delete S.pin;save();loadSet();$("smsg").textContent="Clave quitada"};
+function lock(){
+  if(!S.pin)return;
+  const o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:var(--bg);color:var(--tx);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px";
+  o.innerHTML='<div style="font-size:2.4rem">🔒</div><div>Escribe tu clave</div>';
+  const i=document.createElement("input");i.type="password";i.inputMode="numeric";i.maxLength=4;i.style.cssText="max-width:180px;text-align:center;font-size:1.6rem;letter-spacing:8px";
+  i.oninput=()=>{if(i.value.length===4){if(hsh(i.value)===S.pin)o.remove();else{i.value="";i.placeholder="✗"}}};
+  o.append(i);document.body.append(o);i.focus();
+}
+drawChips();applyTheme();lock();show("v1");
 let DL=null;
 (async()=>{
   try{DL=await claude.use("downloads")}catch(e){}
@@ -316,7 +390,7 @@ $("bfile").onchange=async()=>{
     const n=JSON.parse(await f.text()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S={rate:n.rate||7000,days:n.days,pays:n.pays,exp:Array.isArray(n.exp)?n.exp:[],lb:Date.now()};save();$("v").value=S.rate;render();ageMsg();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
     $("bmsg").textContent="✓ Copia restaurada";
   }catch(err){$("bmsg").textContent="Ese archivo no parece una copia de esta página."}
   $("bfile").value="";
@@ -333,7 +407,7 @@ $("rs").onclick=async()=>{
     const n=JSON.parse(t.value.trim()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S={rate:n.rate||7000,days:n.days,pays:n.pays,exp:Array.isArray(n.exp)?n.exp:[]};save();$("v").value=S.rate;render();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],wp:{}},n);save();$("v").value=S.rate;render();
     $("bmsg").textContent="✓ Copia restaurada";t.value="";t.hidden=true;
   }catch(err){$("bmsg").textContent="Pega primero el texto completo de tu copia y toca Restaurar.";t.hidden=false}
 };
