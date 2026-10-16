@@ -10,34 +10,36 @@
 <link rel="apple-touch-icon" href="icon-192.png">
  <Style>
 :root {
+  :root {
   color-scheme: dark;
 
-  --bg: #090d12;
-  --card: #121922;
-  --card-hover: #18222d;
-  --tx: #f0f5f8;
-  --mut: #8d9ba9;
-  --ac: #42e6a4;
-  --acx: #07150f;
-  --bd: #263442;
-  --dg: #ff7185;
+  --bg: #09090f;
+  --card: #14141f;
+  --card-hover: #1c1c2b;
+  --tx: #f2f1ff;
+  --mut: #9999b5;
+  --ac: #a78bfa;
+  --acx: #10091f;
+  --bd: #2b2940;
+  --dg: #fb7185;
 
-  --shadow: 0 12px 35px rgba(0, 0, 0, .20);
+  --shadow: 0 12px 35px rgba(0, 0, 0, .25);
   --radius: 18px;
   --radius-sm: 12px;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #090d12;
-  --card: #121922;
-  --card-hover: #18222d;
-  --tx: #f0f5f8;
-  --mut: #8d9ba9;
-  --ac: #42e6a4;
-  --acx: #07150f;
-  --bd: #263442;
-  --dg: #ff7185;
+  --bg: #09090f;
+  --card: #14141f;
+  --card-hover: #1c1c2b;
+  --tx: #f2f1ff;
+  --mut: #9999b5;
+  --ac: #a78bfa;
+  --acx: #10091f;
+  --bd: #2b2940;
+  --dg: #fb7185;
+}
 }
 
 :root[data-theme="light"] {
@@ -77,12 +79,13 @@ body {
 
   overflow-x: hidden;
   background:
-    radial-gradient(
-      ellipse at 10% 0%,
-      rgba(66, 230, 164, .07),
-      transparent 40%
-    ),
-    var(--bg);
+    background:
+  radial-gradient(
+    ellipse at 10% 0%,
+    rgba(139, 92, 246, .12),
+    transparent 42%
+  ),
+  var(--bg);;
 
   color: var(--tx);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system,
