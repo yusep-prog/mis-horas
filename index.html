@@ -80,12 +80,31 @@ input,select,textarea{background:rgba(255,255,255,.08);border:1px solid var(--bd
 .tot{border-top:1px solid var(--bd)}
 h1{text-shadow:0 2px 14px rgba(80,160,255,.35)}
 :root[data-theme="amoled"]{--bg:#000;--card:rgba(255,255,255,.06);--pop:rgba(8,8,12,.95);--tx:#f1f5ff;--mut:#9aa8c2;--bd:rgba(255,255,255,.16);--dg:#ff7a8a;color-scheme:dark}
+/* ===== Vidrio con reflejos (más suave, menos neón) ===== */
+:root{--ac:#3f78c4;--acx:#fff;--o1:rgba(120,210,200,.4);--o2:rgba(180,160,235,.38);--o3:rgba(120,170,235,.42);--g1:rgba(255,255,255,.78);--g2:rgba(255,255,255,.38);--g3:rgba(255,255,255,.26);--g4:rgba(255,255,255,.55);--gb:rgba(255,255,255,.95);--hl:rgba(255,255,255,.95);--inb:rgba(255,255,255,.45)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:#8dc0f0;--acx:#071225;--o1:rgba(120,200,190,.22);--o2:rgba(150,130,220,.2);--o3:rgba(90,150,220,.26);--g1:rgba(255,255,255,.22);--g2:rgba(255,255,255,.06);--g3:rgba(255,255,255,.03);--g4:rgba(255,255,255,.12);--gb:rgba(255,255,255,.3);--hl:rgba(255,255,255,.6);--inb:rgba(255,255,255,.06)}}
+:root[data-theme="dark"],:root[data-theme="amoled"]{--ac:#8dc0f0;--acx:#071225;--o1:rgba(120,200,190,.22);--o2:rgba(150,130,220,.2);--o3:rgba(90,150,220,.26);--g1:rgba(255,255,255,.22);--g2:rgba(255,255,255,.06);--g3:rgba(255,255,255,.03);--g4:rgba(255,255,255,.12);--gb:rgba(255,255,255,.3);--hl:rgba(255,255,255,.6);--inb:rgba(255,255,255,.06)}
+:root[data-theme="amoled"]{--o1:rgba(120,200,190,.12);--o2:rgba(150,130,220,.1);--o3:rgba(90,150,220,.14)}
+body::before{background:radial-gradient(circle at 10% 6%,var(--o1),transparent 55%),radial-gradient(circle at 95% 28%,var(--o2),transparent 52%),radial-gradient(circle at 25% 96%,var(--o3),transparent 58%),var(--bg)}
+.card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 38%,var(--g3) 62%,var(--g4) 100%);-webkit-backdrop-filter:blur(30px) saturate(140%);backdrop-filter:blur(30px) saturate(140%);border:1px solid var(--gb);box-shadow:inset 0 1.5px 0 var(--hl),inset 0 -1px 0 rgba(255,255,255,.14),inset 1px 0 0 rgba(255,255,255,.2),0 14px 34px rgba(0,0,0,.26)}
+.card::before{content:"";position:absolute;left:-25%;top:-70%;width:150%;height:100%;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.16) 50%,transparent 62%);transform:rotate(-8deg);pointer-events:none}
+.card>*{position:relative;z-index:1}
+.mn{border:1px solid var(--gb);box-shadow:inset 0 1.5px 0 var(--hl),0 14px 34px rgba(0,0,0,.3)}
+.sum>div{background:linear-gradient(160deg,var(--g1),var(--g3));border:1px solid var(--gb);box-shadow:inset 0 1px 0 var(--hl)}
+input,select,textarea{background:var(--inb);border:1px solid var(--gb);box-shadow:inset 0 2px 6px rgba(0,0,0,.22),0 1px 0 rgba(255,255,255,.18)}
+.main{background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.14) 48%,rgba(255,255,255,.04) 52%,rgba(255,255,255,.2) 100%),linear-gradient(180deg,var(--b1,#9cc4ec),var(--b2,#4a7fc9));border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 18px rgba(0,0,0,.28),inset 0 1.5px 0 rgba(255,255,255,.85),inset 0 -2px 4px rgba(255,255,255,.2);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.chips button.on{background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.14) 48%,rgba(255,255,255,.04) 52%,rgba(255,255,255,.2) 100%),linear-gradient(180deg,var(--b1,#9cc4ec),var(--b2,#4a7fc9));border-color:rgba(255,255,255,.7);box-shadow:0 6px 14px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.8)}
+.nav button,.mb,.chips button{background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.06));border:1px solid var(--gb);box-shadow:inset 0 1px 0 var(--hl),0 4px 10px rgba(0,0,0,.15)}
+.chips button.on{color:var(--bt,#fff)}
+.bar{background:linear-gradient(180deg,var(--b1,#b5d3f2),var(--b2,#4a7fc9));box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(0,0,0,.2)}
+h1{text-shadow:none}
+.tot{border-top:1px solid var(--gb)}
 </style>
 </head>
 <body>
 <div class="top"><h1 id="ttl">⏱️ Mis Horas de Trabajo</h1>
 <div><button class="mb" id="mb" aria-label="Menú">⋮</button><div class="mn" id="mn" hidden>
-<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v6">🐷 Ahorros</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
+<button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v6">🐷 Ahorros</button><button data-v="v7">💵 Otros ingresos</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
 <div id="v1">
 
 <div class="card">
@@ -131,7 +150,7 @@ h1{text-shadow:0 2px 14px rgba(80,160,255,.35)}
 <div id="v2" hidden>
 <div class="card">
   <div class="sum">
-    <div><small>Pagado (total)</small><b id="xp"></b></div>
+    <div><small>Ingresos (total)</small><b id="xp"></b></div>
     <div><small>Gastado (total)</small><b id="xg"></b></div>
     <div><small>Ahorrado</small><b id="xs"></b></div>
     <div><small id="xl">Te queda</small><b id="xd" class="ac"></b></div>
@@ -155,7 +174,7 @@ h1{text-shadow:0 2px 14px rgba(80,160,255,.35)}
 <div id="v6" hidden>
 <div class="card">
   <div class="sum">
-    <div><small>Pagado</small><b id="ys"></b></div>
+    <div><small>Ingresos</small><b id="ys"></b></div>
     <div><small>Gastado</small><b id="yg"></b></div>
     <div><small>Ahorrado</small><b id="yv"></b></div>
     <div><small id="yl">Te queda</small><b id="yd" class="ac"></b></div>
@@ -169,8 +188,23 @@ h1{text-shadow:0 2px 14px rgba(80,160,255,.35)}
 <div class="card"><h2>🐷 Mis ahorros</h2><div id="al"></div><div class="tot"><span>Total ahorrado</span><em id="at"></em></div></div>
 </div>
 
+<div id="v7" hidden>
+<div class="card">
+  <div class="sum">
+    <div><small>Trabajo (pagado)</small><b id="iw"></b></div>
+    <div><small>Otros ingresos</small><b id="io"></b></div>
+    <div><small>Total ingresos</small><b id="it" class="ac"></b></div>
+  </div>
+  <div class="row"><div><label for="nf">Fecha</label><input type="date" id="nf"></div><div><label for="nm">Monto ($)</label><input type="number" id="nm" inputmode="numeric" min="0" placeholder="50000"></div></div>
+  <div style="margin-top:10px"><label for="nn">De dónde viene</label><input type="text" id="nn" placeholder="Ej: venta, regalo, trabajo extra"></div>
+  <button class="main" id="ig">Guardar ingreso</button>
+  <div class="msg" id="imsg"></div>
+</div>
+<div class="card"><h2>💵 Mis otros ingresos</h2><div id="il"></div><div class="tot"><span>Total otros ingresos</span><em id="itt"></em></div></div>
+</div>
+
 <div id="v4" hidden>
-<div class="card"><h2>📊 Últimos 6 meses</h2><div style="font-size:.78rem;color:var(--mut)">Verde: ganado · Rojo: gastado</div><div id="gr"></div></div>
+<div class="card"><h2>📊 Últimos 6 meses</h2><div style="font-size:.78rem;color:var(--mut)">Verde: ingresos (trabajo + otros) · Rojo: gastado</div><div id="gr"></div></div>
 <div class="card"><h2>🧾 Gastos por categoría (este mes)</h2><div id="gc"></div></div>
 <div class="card"><h2>🎯 Meta de ahorro</h2><div id="gm" style="margin-bottom:12px"></div>
 <div class="row"><div><label for="gn">Meta</label><input id="gn" type="text" placeholder="Celular nuevo"></div><div><label for="ga">Valor ($)</label><input id="ga" type="number" inputmode="numeric"></div></div>
@@ -210,7 +244,7 @@ h1{text-shadow:0 2px 14px rgba(80,160,255,.35)}
 
 <script>
 const KEY="horas_trabajo_v1";
-let S={rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}};
+let S={rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}};
 try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
 const $=id=>document.getElementById(id);
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
@@ -302,12 +336,12 @@ $("gd").onclick=async()=>{
     $("m").textContent="✓ Día borrado";render();
   }
 };
-const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad",v6:"🐷 Mis Ahorros",v4:"📊 Resumen y metas",v5:"⚙️ Ajustes"};
+const VT={v1:"⏱️ Mis Horas de Trabajo",v2:"💸 Mis Gastos",v3:"🛟 Copia de seguridad",v6:"🐷 Mis Ahorros",v7:"💵 Otros ingresos",v4:"📊 Resumen y metas",v5:"⚙️ Ajustes"};
 function show(v){
   for(const k in VT)$(k).hidden=k!==v;
   $("ttl").textContent=VT[v];$("mn").hidden=true;
   document.querySelectorAll("#mn button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  window.scrollTo(0,0);if(v==="v4")renderSum();if(v==="v5")loadSet();if(v==="v6")renderSav();if(v==="v2")renderExp();
+  window.scrollTo(0,0);if(v==="v4")renderSum();if(v==="v5")loadSet();if(v==="v6")renderSav();if(v==="v7")renderInc();if(v==="v2")renderExp();
 }
 $("mb").onclick=e=>{e.stopPropagation();$("mn").hidden=!$("mn").hidden};
 document.querySelectorAll("#mn button").forEach(b=>b.onclick=()=>show(b.dataset.v));
@@ -323,8 +357,8 @@ function drawChips(){
 }
 function renderExp(){
   let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(x=>sp+=x.m);
-  const sv=S.sav.reduce((a,x)=>a+x.m,0),queda=paid-sp-sv;$("xs").textContent=money(sv);
-  $("xp").textContent=money(paid);$("xg").textContent=money(sp);
+  const inc=S.inc.reduce((a,x)=>a+x.m,0),sv=S.sav.reduce((a,x)=>a+x.m,0),queda=paid+inc-sp-sv;$("xs").textContent=money(sv);
+  $("xp").textContent=money(paid+inc);$("xg").textContent=money(sp);
   $("xd").textContent=sgn(queda);$("xl").textContent=queda>=0?"Te queda":"Te falta";
   const key=ew.getFullYear()+"-"+String(ew.getMonth()+1).padStart(2,"0");
   $("et").textContent=MES[ew.getMonth()]+" "+ew.getFullYear();
@@ -370,9 +404,9 @@ function bar(lb,v,mx,col){const r=document.createElement("div");r.style.margin="
 function renderSum(){
   const g=$("gr");g.innerHTML="";const now=new Date(),rows=[];
   for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1),k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");let a=0,b=0;
-    for(const x in S.days)if(x.startsWith(k))a+=S.days[x].h*S.days[x].r;S.exp.forEach(e=>{if(e.d.startsWith(k))b+=e.m});rows.push([MES[d.getMonth()],a,b])}
+    for(const x in S.days)if(x.startsWith(k))a+=S.days[x].h*S.days[x].r;S.exp.forEach(e=>{if(e.d.startsWith(k))b+=e.m});S.inc.forEach(e=>{if(e.d.startsWith(k))a+=e.m});rows.push([MES[d.getMonth()],a,b])}
   const mx=Math.max(1,...rows.flatMap(r=>[r[1],r[2]]));
-  rows.forEach(([n,a,b])=>{const w=document.createElement("div");w.style.margin="10px 0";w.append(bar(n+" · ganado "+money(a),a,mx),bar("gastado "+money(b),b,mx,"var(--dg)"));g.append(w)});
+  rows.forEach(([n,a,b])=>{const w=document.createElement("div");w.style.margin="10px 0";w.append(bar(n+" · ingresos "+money(a),a,mx),bar("gastado "+money(b),b,mx,"var(--dg)"));g.append(w)});
   const ck=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"),cs={};
   S.exp.forEach(e=>{if(e.d.startsWith(ck))cs[e.c]=(cs[e.c]||0)+e.m});
   const c=$("gc");c.innerHTML="";const en=Object.entries(cs).sort((a,b)=>b[1]-a[1]),cm=Math.max(1,...en.map(x=>x[1]));
@@ -398,7 +432,7 @@ function applyTheme(){
   ["--ac","--acx","--b1","--b2","--gl","--bt","--o1","--o2","--o3"].forEach(k=>st.removeProperty(k));
   const p=S.pal;if(!p)return;
   const dark=th==="dark"||th==="amoled"||(th==="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);
-  const a=th==="amoled"?.3:dark?.42:.55;
+  const a=th==="amoled"?.15:dark?.24:.4;
   st.setProperty("--ac",p.ac);st.setProperty("--b1",mix(p.ac,255,.35));st.setProperty("--b2",mix(p.ac,0,.25));
   st.setProperty("--gl",rgba(p.ac,.45));st.setProperty("--acx",lum(p.ac)>150?"#04112a":"#fff");st.setProperty("--bt",lum(p.ac)>170?"#04112a":"#fff");
   [["--o1",p.o1],["--o2",p.o2],["--o3",p.o3]].forEach(([k,c])=>st.setProperty(k,rgba(c,a)));
@@ -420,8 +454,8 @@ function lock(){
 }
 function renderSav(){
   let paid=0,sp=0;S.pays.forEach(p=>paid+=p.m);S.exp.forEach(x=>sp+=x.m);
-  const sv=S.sav.reduce((a,x)=>a+x.m,0),q=paid-sp-sv;
-  $("ys").textContent=money(paid);$("yg").textContent=money(sp);$("yv").textContent=money(sv);
+  const inc=S.inc.reduce((a,x)=>a+x.m,0),sv=S.sav.reduce((a,x)=>a+x.m,0),q=paid+inc-sp-sv;
+  $("ys").textContent=money(paid+inc);$("yg").textContent=money(sp);$("yv").textContent=money(sv);
   $("yd").textContent=sgn(q);$("yl").textContent=q>=0?"Te queda":"Te falta";$("at").textContent=money(sv);
   const ym=$("ym");ym.innerHTML="";
   if(S.goal&&S.goal.a>0){
@@ -447,6 +481,29 @@ $("ag").onclick=()=>{
   if(!f||isNaN(m)||m<=0){$("amsg").textContent="Revisa la fecha y el monto.";return}
   S.sav.push({id:Date.now(),d:f,m:m,n:$("an").value.trim()});save();
   $("amsg").textContent="✓ Ahorro guardado: "+money(m);$("am").value="";$("an").value="";renderSav();
+};
+function renderInc(){
+  let paid=0;S.pays.forEach(p=>paid+=p.m);
+  const inc=S.inc.reduce((a,x)=>a+x.m,0);
+  $("iw").textContent=money(paid);$("io").textContent=money(inc);$("it").textContent=money(paid+inc);$("itt").textContent=money(inc);
+  const l=$("il");l.innerHTML="";
+  if(!S.inc.length){const z=document.createElement("div");z.className="zero";z.style.padding="10px 0";z.textContent="Aún no has anotado otros ingresos";l.append(z)}
+  S.inc.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).forEach(x=>{
+    const d=parse(x.d),row=document.createElement("div");row.className="day";
+    const lf=document.createElement("div"),b=document.createElement("b");b.textContent=money(x.m);
+    const sm=document.createElement("small");sm.textContent=d.getDate()+" "+mn[d.getMonth()]+" "+d.getFullYear()+(x.n?" · "+x.n:"");
+    lf.append(b,sm);
+    const xb=document.createElement("button");xb.className="x";xb.textContent="✕";xb.setAttribute("aria-label","Borrar ingreso");
+    xb.onclick=async()=>{if(await askC("¿Borrar este ingreso de "+money(x.m)+"?")){S.inc=S.inc.filter(q=>q.id!==x.id);save();renderInc()}};
+    row.append(lf,xb);l.append(row);
+  });
+}
+$("nf").value=iso(new Date());
+$("ig").onclick=()=>{
+  const f=$("nf").value,m=parseFloat($("nm").value);
+  if(!f||isNaN(m)||m<=0){$("imsg").textContent="Revisa la fecha y el monto.";return}
+  S.inc.push({id:Date.now(),d:f,m:m,n:$("nn").value.trim()});save();
+  $("imsg").textContent="✓ Ingreso guardado: "+money(m);$("nm").value="";$("nn").value="";renderInc();
 };
 function pickPal(p){S.pal=Object.assign({},p);save();applyTheme();loadSet()}
 PRE.forEach(([n,p])=>{const b=document.createElement("button");b.type="button";b.textContent=n;b.style.cssText="background:linear-gradient(135deg,"+p.o1+","+p.ac+","+p.o2+");color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.5)";b.onclick=()=>pickPal(p);$("pp").append(b)});
@@ -485,7 +542,7 @@ $("bfile").onchange=async()=>{
     const n=JSON.parse(await f.text()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
     $("bmsg").textContent="✓ Copia restaurada";
   }catch(err){$("bmsg").textContent="Ese archivo no parece una copia de esta página."}
   $("bfile").value="";
@@ -502,7 +559,7 @@ $("rs").onclick=async()=>{
     const n=JSON.parse(t.value.trim()).S;
     if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
     if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],wp:{}},n);save();$("v").value=S.rate;render();
+    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}},n);save();$("v").value=S.rate;render();
     $("bmsg").textContent="✓ Copia restaurada";t.value="";t.hidden=true;
   }catch(err){$("bmsg").textContent="Pega primero el texto completo de tu copia y toca Restaurar.";t.hidden=false}
 };
