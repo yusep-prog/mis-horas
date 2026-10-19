@@ -9,7 +9,7 @@ App web instalable (PWA) para llevar tus finanzas personales desde el celular: h
 - **🐷 Ahorros** y **💵 Otros ingresos.**
 - **📊 Resumen y metas:** gráfica de los últimos 6 meses, gastos por categoría y meta de ahorro con progreso.
 - **🎨 Personalización:** estilos (Liquid glass, Nothing, One UI, HyperOS), tema claro/oscuro/AMOLED y paletas de color.
-- **🛟 Copias de seguridad** en archivo o en texto.
+- **🛟 Copias de seguridad** en una carpeta que elijas (Chrome/Edge), por el menú de compartir (Drive, Archivos, WhatsApp…) o en texto.
 
 ## Instalación y uso
 
@@ -37,6 +37,7 @@ Si el almacenamiento llega a contener un JSON dañado, la app lo conserva aparte
 
 Notas:
 
+- **Carpeta de copias:** en Chrome o Edge (incluido Chrome 132+ en Android) puedes elegir una carpeta en "Copia de seguridad → Elegir carpeta de copias". La app la recuerda y guarda ahí cada copia (`horas-AAAA-MM-DD.json`; si haces varias el mismo día se reemplaza). En Safari/iOS y Firefox no existe esta opción y se usa el menú de compartir.
 - Las **copias de seguridad no van cifradas** y no incluyen la clave de 4 números ni la huella. Guárdalas en un lugar seguro.
 - Al restaurar una copia, los datos se validan y se descarta lo que no tenga el formato esperado.
 - La app no envía información a ningún servidor. El único contacto externo es el botón de WhatsApp, que abre un enlace con el texto del resumen.
@@ -52,6 +53,6 @@ Notas:
 
 ## Desarrollo
 
-No hay compilación ni dependencias: edita los archivos y recarga. Al cambiar cualquier archivo de la app, **sube el número de versión de la caché** en `sw.js` (`const C = "horas-v6"`) para que los dispositivos descarguen la versión nueva.
+No hay compilación ni dependencias: edita los archivos y recarga. Al cambiar cualquier archivo de la app, **sube el número de versión de la caché** en `sw.js` (`const C = "horas-v7"`) para que los dispositivos descarguen la versión nueva.
 
 Datos guardados en `localStorage` (clave `horas_trabajo_v1`): horas por día, pagos, gastos, ahorros, otros ingresos, semanas pagadas, meta y ajustes. Si el cifrado está activo, el valor es un JSON `{enc, salt, iv, ct}`.

@@ -304,7 +304,8 @@ h1{text-shadow:none}
 <div class="card">
   <h2>🛟 Copia de seguridad</h2>
   <div class="msg" id="bage" style="margin:0 0 10px;font-weight:600"></div>
-  <button class="main" id="bf" style="margin:0 0 10px">💾 Guardar copia en mi teléfono</button>
+  <div id="bdg" style="margin:0 0 12px"><button class="main" id="bd" style="margin:0 0 6px;background:var(--bg);color:var(--tx);border:1px solid var(--bd)">📁 Elegir carpeta de copias</button><div class="msg" id="bdir" style="margin:0;color:var(--mut)"></div></div>
+<button class="main" id="bf" style="margin:0 0 10px">💾 Guardar copia en mi teléfono</button>
   <label class="main" for="bfile" style="display:block;text-align:center;margin:0 0 16px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);padding:12px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer">📂 Restaurar desde archivo</label>
   <input type="file" id="bfile" accept=".json,application/json,text/plain" hidden>
   <div style="font-size:.78rem;color:var(--mut);margin-bottom:10px">Las copias no van cifradas: guárdalas en un lugar seguro.</div>
@@ -739,6 +740,21 @@ catch(e){CK=null;SALT=null;m.textContent="No se pudo activar el cifrado."}
 };
 drawChips();applyTheme();renderBar();lock();show("v1");setTitle();
 const ex=()=>{const o=Object.assign({},S);delete o.pin;delete o.fp;return{v:1,S:o}};
+const HASDIR=typeof window.showDirectoryPicker==="function"&&!!window.indexedDB;
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open("horas_fs",1);r.onupgradeneeded=()=>r.result.createObjectStore("h");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbGet=async k=>{const d=await idb();return new Promise((res,rej)=>{const q=d.transaction("h").objectStore("h").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})};
+const idbSet=async(k,v)=>{const d=await idb();return new Promise((res,rej)=>{const t=d.transaction("h","readwrite");t.objectStore("h").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})};
+async function dirPerm(h){const o={mode:"readwrite"};if((await h.queryPermission(o))==="granted")return true;return(await h.requestPermission(o))==="granted"}
+// Escribe el archivo dentro de la carpeta elegida; devuelve su nombre, o null si no se pudo.
+async function writeTo(h,name,data){
+if(!h||!(await dirPerm(h)))return null;
+const fh=await h.getFileHandle(name,{create:true});const w=await fh.createWritable();await w.write(data);await w.close();return h.name;
+}
+async function showDir(){
+const g=$("bdg");if(!g)return;g.hidden=!HASDIR;if(!HASDIR)return;
+let h=null;try{h=await idbGet("dir")}catch(e){}
+$("bdir").textContent=h?"📁 Carpeta: "+h.name:"Sin carpeta elegida: se usa el menú de compartir.";
+}
 async function saveFile(name,data){
 const blob=new Blob([data],{type:"application/json"});
 try{const f=new File([blob],name,{type:"application/json"});
@@ -761,10 +777,18 @@ function ageMsg(){
 $("bf").onclick=async()=>{
 $("bmsg").textContent="Preparando la copia...";
 try{
-const r=await saveFile("horas-"+iso(new Date())+".json",JSON.stringify(ex()));
+const name="horas-"+iso(new Date())+".json",data=JSON.stringify(ex());
+let dir=null;
+if(HASDIR){try{dir=await writeTo(await idbGet("dir"),name,data)}catch(e){dir=null}}
+const r=dir?"dir":await saveFile(name,data);
 if(r==="cancel"){$("bmsg").textContent="";return}
-S.lb=Date.now();save();ageMsg();$("bmsg").textContent=r==="shared"?"✓ Copia lista. Guárdala en un lugar seguro.":"✓ Copia descargada en tu teléfono";
+S.lb=Date.now();save();ageMsg();
+$("bmsg").textContent=r==="dir"?"✓ Copia guardada en la carpeta «"+dir+"»":r==="shared"?"✓ Copia lista. Guárdala en un lugar seguro.":"✓ Copia descargada en tu teléfono";
 }catch(e){$("bmsg").textContent="No se pudo guardar el archivo. Prueba con la copia en texto."}
+};
+$("bd").onclick=async()=>{
+try{const h=await showDirectoryPicker({id:"horas-copias",mode:"readwrite"});await idbSet("dir",h);await showDir();$("bmsg").textContent="✓ Carpeta elegida. Las copias se guardarán ahí."}
+catch(e){if(!e||e.name!=="AbortError")$("bmsg").textContent="No se pudo usar esa carpeta. Elige otra (no Descargas ni la raíz del teléfono)."}
 };
 $("bfile").onchange=async()=>{
 const f=$("bfile").files[0];if(!f)return;
@@ -776,6 +800,7 @@ if(await doRestore(n))$("bmsg").textContent="✓ Copia restaurada";
 $("bfile").value="";
 };
 ageMsg();
+showDir();
 $("bk").onclick=()=>{
   const t=$("bt");t.value=JSON.stringify(ex());t.hidden=false;t.focus();t.select();
   $("bmsg").textContent="Copia lista: copia todo el texto y guárdalo (notas, WhatsApp, correo).";

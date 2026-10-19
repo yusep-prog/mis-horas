@@ -1,5 +1,5 @@
 // Sube la versión cada vez que cambies un archivo de la app para limpiar cachés viejas.
-const C = "horas-v6";
+const C = "horas-v7";
 const F = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
