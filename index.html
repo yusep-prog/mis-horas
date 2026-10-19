@@ -4,16 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mis Finanzas</title>
+<meta name="description" content="Registra tus horas de trabajo, pagos, gastos y ahorros. Funciona sin conexión.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b1a33">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mis Finanzas">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mut:#6b7684;--ac:#1f7a5a;--acx:#fff;--bd:#e1e6ec;--dg:#c0392b;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111519;--card:#1b2128;--tx:#eef2f6;--mut:#93a0ae;--ac:#3fb68b;--acx:#08140f;--bd:#2b333c;--dg:#ef7b6e}}
-:root[data-theme="dark"]{--bg:#111519;--card:#1b2128;--tx:#eef2f6;--mut:#93a0ae;--ac:#3fb68b;--acx:#08140f;--bd:#2b333c;--dg:#ef7b6e}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:520px;margin-inline:auto}
@@ -175,6 +173,7 @@ h1{text-shadow:none}
 <div class="top"><h1 id="ttl">⏱️ Mis Horas de Trabajo</h1>
 <div><button class="mb" id="mb" aria-label="Menú">⋮</button><div class="mn" id="mn" hidden>
 <button data-v="v1">⏱️ Horas y pagos</button><button data-v="v2">💸 Gastos</button><button data-v="v6">🐷 Ahorros</button><button data-v="v7">💵 Otros ingresos</button><button data-v="v3">🛟 Copia de seguridad</button><button data-v="v4">📊 Resumen y metas</button><button data-v="v5">⚙️ Ajustes</button></div></div></div>
+<div class="card" id="err" role="alert" hidden style="color:var(--dg);font-weight:600"></div>
 <div class="tb" id="tb"><div><small>Ingresos</small><b id="t1"></b></div><div><small>Gastado</small><b id="t2"></b></div><div><small>Ahorrado</small><b id="t3"></b></div><div><small id="t4l">Te queda</small><b id="t4" class="ac"></b></div></div>
 <div id="v1">
 
@@ -231,7 +230,7 @@ h1{text-shadow:none}
     <div><label for="em">Monto ($)</label><input type="number" id="em" inputmode="numeric" min="0" placeholder="15000"></div>
   </div>
   <div style="margin-top:10px"><label for="en">Nota (opcional)</label><input type="text" id="en" placeholder="Ej: almuerzo"></div>
-  <div style="margin-top:12px"><label>Categoría</label><div class="chips" id="ec"></div></div>
+  <div style="margin-top:12px"><label id="lc">Categoría</label><div class="chips" id="ec" role="group" aria-labelledby="lc"></div></div>
   <button class="main" id="eg">Guardar gasto</button>
   <div class="msg" id="emsg"></div>
 </div>
@@ -294,6 +293,9 @@ h1{text-shadow:none}
 <button class="main" id="sv">Guardar ajustes</button>
 <button class="main" id="rp" style="background:none;color:var(--dg);border:1px solid var(--dg)">Quitar clave</button>
 <button class="main" id="fb" style="background:none;color:var(--tx);border:1px solid var(--gb);box-shadow:none;text-shadow:none">👆 Activar huella</button>
+<div style="margin-top:16px"><label for="ep">Cifrado de datos: clave larga (mínimo 8 caracteres)</label><input type="password" id="ep" autocomplete="new-password" placeholder="Frase o contraseña"></div>
+<button class="main" id="ee" style="background:none;color:var(--tx);border:1px solid var(--bd);box-shadow:none;text-shadow:none">🔐 Cifrar mis datos</button>
+<div style="font-size:.75rem;color:var(--mut);margin-top:8px">Con el cifrado, los datos se guardan ilegibles en este teléfono. Si olvidas la clave no se pueden recuperar. La clave de 4 números solo bloquea la pantalla.</div>
 <div class="msg" id="smsg"></div></div>
 </div>
 
@@ -305,7 +307,8 @@ h1{text-shadow:none}
   <button class="main" id="bf" style="margin:0 0 10px">💾 Guardar copia en mi teléfono</button>
   <label class="main" for="bfile" style="display:block;text-align:center;margin:0 0 16px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);padding:12px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer">📂 Restaurar desde archivo</label>
   <input type="file" id="bfile" accept=".json,application/json,text/plain" hidden>
-  <div style="font-size:.78rem;color:var(--mut);margin-bottom:8px">Otra opción, en texto:</div>
+  <div style="font-size:.78rem;color:var(--mut);margin-bottom:10px">Las copias no van cifradas: guárdalas en un lugar seguro.</div>
+<div style="font-size:.78rem;color:var(--mut);margin-bottom:8px">Otra opción, en texto:</div>
   <div class="row">
     <button class="main" id="bk" style="flex:1;margin:0">Crear copia</button>
     <button class="main" id="rs" style="flex:1;margin:0;background:var(--bg);color:var(--tx);border:1px solid var(--bd)">Restaurar</button>
@@ -318,10 +321,50 @@ h1{text-shadow:none}
 
 <script>
 const KEY="horas_trabajo_v1";
-let S={rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}};
-try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+const HAS=!!(window.crypto&&crypto.subtle);
+const te=new TextEncoder(),td=new TextDecoder();
+const DEFS=()=>({rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}});
+const isD=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s);
+const nn=(x,m)=>typeof x==="number"&&isFinite(x)&&x>=m;
+const txt=(x,n)=>typeof x==="string"?x.slice(0,n):"";
+const hex=x=>typeof x==="string"&&/^#[0-9a-fA-F]{6}$/.test(x);
+// Normaliza y valida un objeto de datos (carga local, descifrado o copia de seguridad).
+function clean(n,dev){
+const o=DEFS();if(!n||typeof n!=="object")return o;
+if(nn(n.rate,0))o.rate=n.rate;
+if(n.days&&typeof n.days==="object")for(const k in n.days){const e=n.days[k];if(isD(k)&&e&&nn(e.h,0)&&nn(e.r,0)){const d={h:e.h,r:e.r,n:txt(e.n,200)};if(e.rest)d.rest=true;o.days[k]=d}}
+const gid=p=>nn(p.id,0)?p.id:Date.now()+Math.random();
+const L=(a,f)=>Array.isArray(a)?a.map(x=>x&&typeof x==="object"&&isD(x.d)&&nn(x.m,0)?f(x):null).filter(Boolean):[];
+const CN=["Comida","Transporte","Hogar","Salud","Ocio","Otros"];
+o.pays=L(n.pays,p=>({id:gid(p),d:p.d,m:p.m}));
+o.exp=L(n.exp,x=>({id:gid(x),d:x.d,m:x.m,c:CN.includes(x.c)?x.c:"Otros",n:txt(x.n,200)}));
+o.sav=L(n.sav,x=>({id:gid(x),d:x.d,m:x.m,n:txt(x.n,200)}));
+o.inc=L(n.inc,x=>({id:gid(x),d:x.d,m:x.m,n:txt(x.n,200)}));
+if(n.wp&&typeof n.wp==="object")for(const k in n.wp)if(isD(k)&&n.wp[k])o.wp[k]=true;
+if(n.goal&&nn(n.goal.a,0)&&n.goal.a>0)o.goal={n:txt(n.goal.n,60)||"Mi meta",a:n.goal.a};
+if(["glass","nothing","oneui","hyper"].includes(n.style))o.style=n.style;
+if(["auto","light","dark","amoled"].includes(n.theme))o.theme=n.theme;
+if(n.pal&&["ac","o1","o2","o3"].every(k=>hex(n.pal[k])))o.pal={ac:n.pal.ac,o1:n.pal.o1,o2:n.pal.o2,o3:n.pal.o3};
+if(nn(n.lb,0))o.lb=n.lb;
+if(n.tbmin)o.tbmin=true;
+if(dev){if(typeof n.pin==="string")o.pin=n.pin;if(typeof n.fp==="string")o.fp=n.fp}
+return o;
+}
+let CK=null,SALT=null,LOCKED=false,ENCBLOB=null,sq=Promise.resolve();
+let S=DEFS();
+try{const r=localStorage.getItem(KEY);if(r){let o=null;
+try{o=JSON.parse(r)}catch(e){try{localStorage.setItem(KEY+"_corrupto",r)}catch(_){}}
+if(o&&o.enc===1&&o.ct){LOCKED=true;ENCBLOB=o}else if(o)S=clean(o,true)}}catch(e){}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+async function dkey(p,salt){const m=await crypto.subtle.importKey("raw",te.encode(p),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:310000,hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function encS(){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},CK,te.encode(JSON.stringify(S)));return JSON.stringify({enc:1,salt:b64(SALT),iv:b64(iv),ct:b64(ct)})}
 const $=id=>document.getElementById(id);
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(typeof renderBar==="function")renderBar()};
+const setErr=on=>{const e=document.getElementById("err");if(!e)return;e.hidden=!on;if(on)e.textContent="⚠️ No se pudo guardar en este teléfono (almacenamiento lleno o bloqueado). Haz una copia de seguridad ahora."};
+const save=()=>{
+if(LOCKED)return;
+if(typeof renderBar==="function")renderBar();
+sq=sq.then(async()=>{try{localStorage.setItem(KEY,CK?await encS():JSON.stringify(S));setErr(false)}catch(e){setErr(true)}});
+};
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const parse=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const monday=d=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x};
@@ -556,14 +599,14 @@ function applyTheme(){
   st.setProperty("--gl",rgba(p.ac,.45));st.setProperty("--acx",lum(p.ac)>150?"#04112a":"#fff");st.setProperty("--bt",lum(p.ac)>170?"#04112a":"#fff");
   [["--o1",p.o1],["--o2",p.o2],["--o3",p.o3]].forEach(([k,c])=>st.setProperty(k,rgba(c,a)));
 }
-function loadSet(){$("st2").value=S.style||"glass";$("fb").textContent=S.fp?"Quitar huella":"👆 Activar huella";{const p=S.pal||DEF;$("c0").value=p.ac;$("c1").value=p.o1;$("c2").value=p.o2;$("c3").value=p.o3}$("tm2").value=S.theme||"auto";$("pn").value="";$("smsg").textContent=S.pin?"🔒 Clave activada"+(S.fp?" · 👆 huella activada":""):""}
-$("sv").onclick=()=>{
-  S.theme=$("tm2").value;const p=$("pn").value;
-  if(p){if(!/^\d{4}$/.test(p)){$("smsg").textContent="La clave debe tener 4 números.";return}S.pin=hsh(p)}
-  save();applyTheme();loadSet();$("smsg").textContent="✓ Ajustes guardados"+(S.pin?" · 🔒 clave activada":"");
+function loadSet(){$("st2").value=S.style||"glass";$("fb").textContent=S.fp?"Quitar huella":"👆 Activar huella";{const p=S.pal||DEF;$("c0").value=p.ac;$("c1").value=p.o1;$("c2").value=p.o2;$("c3").value=p.o3}$("tm2").value=S.theme||"auto";$("pn").value="";$("ee").textContent=CK?"🔓 Quitar cifrado":"🔐 Cifrar mis datos";$("ep").parentElement.hidden=!!CK;$("ep").value="";$("smsg").textContent=(S.pin?"🔒 Clave activada"+(S.fp?" · 👆 huella activada":""):"")+(CK?(S.pin?" · ":"")+"🔐 datos cifrados":"")}
+$("sv").onclick=async()=>{
+S.theme=$("tm2").value;const p=$("pn").value;
+if(p){if(!/^\d{4}$/.test(p)){$("smsg").textContent="La clave debe tener 4 números.";return}S.pin=await pinMake(p)}
+save();applyTheme();loadSet();$("smsg").textContent="✓ Ajustes guardados"+(S.pin?" · 🔒 clave activada":"");
 };
 $("rp").onclick=()=>{delete S.pin;delete S.fp;save();loadSet();$("smsg").textContent="Clave quitada"};
-const b64=buf=>btoa(String.fromCharCode(...new Uint8Array(buf)));
+const b64=buf=>{const u=new Uint8Array(buf);let t="";for(let i=0;i<u.length;i+=32768)t+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(t)};
 const unb64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
 async function fpAvail(){try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
 async function fpEnable(){
@@ -580,7 +623,8 @@ $("fb").onclick=async()=>{
   try{await fpEnable();loadSet();$("smsg").textContent="✓ Huella activada"}catch(e){$("smsg").textContent="No se pudo activar la huella."}
 };
 function lock(){
-  if(!S.pin&&!S.fp)return;
+if(LOCKED){passLock();return}
+if(!S.pin&&!S.fp)return;
   const o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:var(--bg);color:var(--tx);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px";
   o.innerHTML='<div style="font-size:2.4rem">🔒</div><div>Mis Finanzas</div>';
   const msg=document.createElement("div");msg.style.cssText="color:var(--mut);font-size:.9rem;min-height:1.2em;text-align:center";
@@ -589,10 +633,10 @@ function lock(){
     const go=async()=>{try{await fpCheck();o.remove()}catch(e){msg.textContent="No se pudo con la huella"+(S.pin?". Escribe tu clave.":".")}};
     b.onclick=go;o.append(b);setTimeout(go,300);
   }
-  let i=null;
+  let i=null,bad=0,until=0;
   if(S.pin){
     i=document.createElement("input");i.type="password";i.inputMode="numeric";i.maxLength=4;i.placeholder="Clave";i.style.cssText="max-width:180px;text-align:center;font-size:1.6rem;letter-spacing:8px";
-    i.oninput=()=>{if(i.value.length===4){if(hsh(i.value)===S.pin)o.remove();else{i.value="";msg.textContent="Clave incorrecta"}}};
+    i.oninput=async()=>{if(i.value.length!==4||i.disabled)return;const w=until-Date.now();if(w>0){i.value="";msg.textContent="Espera "+Math.ceil(w/1000)+" s";return}const v=i.value;i.disabled=true;const ok=await pinOk(v);i.disabled=false;if(ok)o.remove();else{bad++;if(bad>=3)until=Date.now()+Math.min(30000,1000*2**(bad-3));i.value="";msg.textContent="Clave incorrecta";i.focus()}};
     o.append(i);
   }
   o.append(msg);document.body.append(o);
@@ -652,17 +696,62 @@ PRE.forEach(([n,p])=>{const b=document.createElement("button");b.type="button";b
 $("cr").onclick=()=>{delete S.pal;save();applyTheme();loadSet()};
 $("st2").onchange=()=>{S.style=$("st2").value;save();applyTheme();setTitle();if($("v4")&&!$("v4").hidden)renderSum()};
 $("tm2").onchange=()=>{S.theme=$("tm2").value;save();applyTheme()};
+async function pinHash(pin,saltB64){const m=await crypto.subtle.importKey("raw",te.encode(pin),"PBKDF2",false,["deriveBits"]);return b64(await crypto.subtle.deriveBits({name:"PBKDF2",salt:unb64(saltB64),iterations:150000,hash:"SHA-256"},m,256))}
+async function pinMake(pin){if(!HAS)return hsh(pin);const s=b64(crypto.getRandomValues(new Uint8Array(16)));return"p2:"+s+":"+await pinHash(pin,s)}
+async function pinOk(v){
+const p=S.pin||"";
+if(p.indexOf("p2:")===0){const a=p.split(":");return HAS&&(await pinHash(v,a[1]))===a[2]}
+if(hsh(v)===p){if(HAS){S.pin=await pinMake(v);save()}return true}
+return false;
+}
+function afterLoad(){$("v").value=S.rate;applyTheme();renderBar();render();ageMsg();show("v1");setTitle()}
+function passLock(){
+const o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:var(--bg);color:var(--tx);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px";
+o.innerHTML='<div style="font-size:2.4rem">🔐</div><div>Mis Finanzas</div>';
+const i=document.createElement("input");i.type="password";i.placeholder="Clave de cifrado";i.autocomplete="current-password";i.style.cssText="max-width:260px;text-align:center";
+const b=document.createElement("button");b.className="main";b.style.cssText="max-width:260px;margin:0";b.textContent="Desbloquear";
+const msg=document.createElement("div");msg.style.cssText="color:var(--mut);font-size:.9rem;min-height:1.2em;text-align:center";
+let bad=0,until=0,busy=false;
+const go=async()=>{
+if(busy||!i.value)return;
+const w=until-Date.now();if(w>0){msg.textContent="Espera "+Math.ceil(w/1000)+" s";return}
+if(!HAS){msg.textContent="Este navegador no puede descifrar (se necesita https).";return}
+busy=true;b.disabled=true;msg.textContent="Descifrando…";
+try{
+const salt=unb64(ENCBLOB.salt),key=await dkey(i.value,salt);
+const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(ENCBLOB.iv)},key,unb64(ENCBLOB.ct));
+S=clean(JSON.parse(td.decode(pt)),true);CK=key;SALT=salt;LOCKED=false;ENCBLOB=null;o.remove();afterLoad();
+}catch(e){bad++;if(bad>=3)until=Date.now()+Math.min(30000,1000*2**(bad-3));msg.textContent="Clave incorrecta";i.value=""}
+busy=false;b.disabled=false;
+};
+b.onclick=go;i.onkeydown=e=>{if(e.key==="Enter")go()};
+o.append(i,b,msg);document.body.append(o);i.focus();
+}
+$("ee").onclick=async()=>{
+const m=$("smsg");
+if(!HAS){m.textContent="Este navegador no permite cifrado (se necesita https).";return}
+if(CK){if(!(await askC("Los datos quedarán sin cifrar en este teléfono. ¿Continuar?")))return;CK=null;SALT=null;save();loadSet();m.textContent="Cifrado desactivado";return}
+const p=$("ep").value;
+if(p.length<8){m.textContent="La clave de cifrado debe tener al menos 8 caracteres.";return}
+m.textContent="Cifrando…";
+try{SALT=crypto.getRandomValues(new Uint8Array(16));CK=await dkey(p,SALT);save();loadSet();m.textContent="✓ Cifrado activado. Si olvidas la clave no hay forma de recuperar los datos."}
+catch(e){CK=null;SALT=null;m.textContent="No se pudo activar el cifrado."}
+};
 drawChips();applyTheme();renderBar();lock();show("v1");setTitle();
-let DL=null;
-(async()=>{
-  try{DL=await claude.use("downloads")}catch(e){}
-  if(!DL)DL={save:async({filename,data})=>{
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
-    a.download=filename;document.body.append(a);a.click();a.remove();
-    return {status:"saved"};
-  }};
-})();
+const ex=()=>{const o=Object.assign({},S);delete o.pin;delete o.fp;return{v:1,S:o}};
+async function saveFile(name,data){
+const blob=new Blob([data],{type:"application/json"});
+try{const f=new File([blob],name,{type:"application/json"});
+if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:name});return"shared"}catch(e){if(e&&e.name==="AbortError")return"cancel"}}}catch(e){}
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(a.href),4000);return"saved";
+}
+async function doRestore(n){
+if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
+if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return false;
+const c=clean(n,false);if(S.pin)c.pin=S.pin;if(S.fp)c.fp=S.fp;c.lb=Date.now();
+S=c;save();$("v").value=S.rate;render();ageMsg();return true;
+}
 function ageMsg(){
   const el=$("bage");const has=Object.keys(S.days).length||S.pays.length;
   if(!S.lb){el.textContent=has?"⚠️ Aún no has guardado ninguna copia.":"";return}
@@ -670,40 +759,34 @@ function ageMsg(){
   el.textContent=(d>=7?"⚠️ ":"✓ ")+"Última copia: "+(d===0?"hoy":"hace "+d+(d===1?" día":" días"));
 }
 $("bf").onclick=async()=>{
-  const data=JSON.stringify({v:1,S:S});
-  $("bmsg").textContent="Preparando la copia...";
-  if(!DL){$("bk").click();$("bmsg").textContent="Aquí no se pueden guardar archivos: copia este texto y guárdalo en tus notas.";return}
-  try{
-    await DL.save({filename:"horas-"+iso(new Date())+".json",data:data});
-    S.lb=Date.now();save();ageMsg();$("bmsg").textContent="✓ Copia guardada en tu teléfono";
-  }catch(e){if(!e||e.code!=="declined")$("bmsg").textContent="No se pudo guardar el archivo. Prueba con la copia en texto."}
+$("bmsg").textContent="Preparando la copia...";
+try{
+const r=await saveFile("horas-"+iso(new Date())+".json",JSON.stringify(ex()));
+if(r==="cancel"){$("bmsg").textContent="";return}
+S.lb=Date.now();save();ageMsg();$("bmsg").textContent=r==="shared"?"✓ Copia lista. Guárdala en un lugar seguro.":"✓ Copia descargada en tu teléfono";
+}catch(e){$("bmsg").textContent="No se pudo guardar el archivo. Prueba con la copia en texto."}
 };
 $("bfile").onchange=async()=>{
-  const f=$("bfile").files[0];if(!f)return;
-  try{
-    const n=JSON.parse(await f.text()).S;
-    if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
-    if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}},n,{lb:Date.now()});save();$("v").value=S.rate;render();ageMsg();
-    $("bmsg").textContent="✓ Copia restaurada";
-  }catch(err){$("bmsg").textContent="Ese archivo no parece una copia de esta página."}
-  $("bfile").value="";
+const f=$("bfile").files[0];if(!f)return;
+try{
+if(f.size>5e6)throw 0;
+const n=JSON.parse(await f.text()).S;
+if(await doRestore(n))$("bmsg").textContent="✓ Copia restaurada";
+}catch(err){$("bmsg").textContent="Ese archivo no parece una copia de esta página."}
+$("bfile").value="";
 };
 ageMsg();
 $("bk").onclick=()=>{
-  const t=$("bt");t.value=JSON.stringify({v:1,S:S});t.hidden=false;t.focus();t.select();
+  const t=$("bt");t.value=JSON.stringify(ex());t.hidden=false;t.focus();t.select();
   $("bmsg").textContent="Copia lista: copia todo el texto y guárdalo (notas, WhatsApp, correo).";
   try{navigator.clipboard.writeText(t.value).then(()=>{$("bmsg").textContent="✓ Copia lista y ya copiada. Pégala en tus notas o en WhatsApp."}).catch(()=>{})}catch(e){}
 };
 $("rs").onclick=async()=>{
-  const t=$("bt");
-  try{
-    const n=JSON.parse(t.value.trim()).S;
-    if(!n||typeof n.days!=="object"||!Array.isArray(n.pays))throw 0;
-    if(!(await askC("Esto reemplaza lo que hay ahora. ¿Continuar?")))return;
-    S=Object.assign({rate:7000,days:{},pays:[],exp:[],sav:[],inc:[],wp:{}},n);save();$("v").value=S.rate;render();
-    $("bmsg").textContent="✓ Copia restaurada";t.value="";t.hidden=true;
-  }catch(err){$("bmsg").textContent="Pega primero el texto completo de tu copia y toca Restaurar.";t.hidden=false}
+const t=$("bt");
+try{
+const n=JSON.parse(t.value.trim()).S;
+if(await doRestore(n)){$("bmsg").textContent="✓ Copia restaurada";t.value="";t.hidden=true}
+}catch(err){$("bmsg").textContent="Pega primero el texto completo de tu copia y toca Restaurar.";t.hidden=false}
 };
 function renderPay(){
   let earned=0;for(const k in S.days)earned+=S.days[k].h*S.days[k].r;
